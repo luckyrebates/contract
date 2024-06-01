@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: BUSL-1.1
-// Compatible with OpenZeppelin Contracts ^4.0.0
+//SPDX-License-Identifier: BUSL-1.1
+//Compatible with OpenZeppelin Contracts ^4.0.0
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -29,15 +29,15 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
         Model model;
         uint256 endTime;
         uint256 maxTickets;
-        uint256 maxPrizeNum;    //最大中奖数
-        uint256 buyTickets;    //用户购买投注数
-        uint256 sendTickets;     //用户获取投注数
-        uint256 injectTickets;  //捐赠数
+        uint256 maxPrizeNum;    //Maximum winning number
+        uint256 buyTickets;    //The number of bets purchased by the user
+        uint256 sendTickets;     //User gets the number of bets
+        uint256 injectTickets;  //Number of donations
         uint256 userAddrNum;
         uint256 userTxNum;
         uint256 injectAddrNum;
         uint256 ticketPirce;
-        address allowAddr;  //指定可调用地址，若设置非0x0，则仅允许该地址调用，否则允许任意地址调用
+        address allowAddr;  //Specify the callable address. If the setting is not 0x0, only this address is allowed to be called. Otherwise, any address is allowed to be called.
         uint256 secret;
         bool autoClaim; 
     }
@@ -64,11 +64,11 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
     IRandomGenerator randomGenerator;
 
     /*
-    modifier notContract() {
-        require(!_isContract(msg.sender), "Contract not allowed");
-        require(msg.sender == tx.origin, "Proxy contract not allowed");
-        _;
-    }*/
+modifier notContract() {
+require(!_isContract(msg.sender), "Contract not allowed");
+require(msg.sender == tx.origin, "Proxy contract not allowed");
+_;
+}*/
 
     modifier onlyOperator() {
         require(operatorAddressMap[msg.sender] == true, "Not operator");
@@ -167,12 +167,12 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
     }
 
     /**
-     * @notice create the TokenGift
-     * @dev Callable by operator
-     * @param _endTime: endTime of the TokenGift
-     * @param _maxTickets: max ticket of the TokenGift
-     * @param _secret: 
-     */
+*@notice create the TokenGift
+*@dev Callable by operator
+*@param _endTime: endTime of the TokenGift
+*@param _maxTickets: max ticket of the TokenGift
+*@param _secret:
+*/
     function createTokenGiftDetail(
         address _tokenAddress,
         uint16 _model,
@@ -190,7 +190,7 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
             _maxPrizeNum,_allowAddr,_secret,_autoClaim);
         
         if (_injectTicketNum > 0){
-            // Calculate number of token to this contract
+            //Calculate number of token to this contract
             _injectTickets(currentId,_injectAddress,_injectTicketNum);
         }
     }
@@ -207,7 +207,7 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
     function _injectTickets(uint256 _id,address _injectAddress,uint256 _ticketNumbers)internal{
         uint256 amountTokenToTransfer = tokenGiftIdMap[_id].ticketPirce * _ticketNumbers;
 
-        // Transfer cake tokens to this contract
+        //Transfer cake tokens to this contract
         IERC20(tokenGiftIdMap[_id].ticketToken).safeTransferFrom(address(_injectAddress), address(this), amountTokenToTransfer);
         tokenGiftIdMap[_id].injectTickets += _ticketNumbers;
 
@@ -282,10 +282,10 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
             require(tokenGiftIdMap[_id].buyTickets + tokenGiftIdMap[_id].sendTickets +  _ticketNumbers <= tokenGiftIdMap[_id].maxTickets, "TokenGift is over ticket");
         }
 
-        // Calculate number of token to this contract
+        //Calculate number of token to this contract
         uint256 amountTokenToTransfer = tokenGiftIdMap[_id].ticketPirce * _ticketNumbers;
 
-        // Transfer cake tokens to this contract
+        //Transfer cake tokens to this contract
         IERC20(tokenGiftIdMap[_id].ticketToken).safeTransferFrom(address(msg.sender), address(this), amountTokenToTransfer);
 
         uint256 lastTotalNumbers = _fillTicket(_id,_receiveAddress,_ticketNumbers,true);
@@ -315,7 +315,7 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
         }
     }
 
-    //二分查找
+    //binary search
     function _getTicketbyIndex(uint256 _id,uint256 _index) internal view returns (Ticket storage){
         require(ticketMap[_id][tokenGiftIdMap[_id].userTxNum - 1].totalNumbers > _index,"index out range");
         uint256 left = 0;
@@ -344,9 +344,9 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
         
         uint256 userTickets = tokenGiftIdMap[_id].buyTickets + tokenGiftIdMap[_id].sendTickets;
         if ( userTickets == 0){
-            //返还注入金额
+            //return the amount injected
             _returnInject(_id);
-            //_removeEnvelope(_id);
+            //remove envelope( id);
             emit TokenGiftClaimable(_id,block.timestamp,_nonce,0,0);
             return ;
         }
@@ -368,7 +368,7 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
             drawNum = tokenGiftIdMap[_id].maxPrizeNum;
         }
 
-        //计算中奖值
+        //Calculate winning value
         uint256 totalTickets = tokenGiftIdMap[_id].injectTickets + tokenGiftIdMap[_id].buyTickets;
         if (totalTickets == 0 ){
             return ;
@@ -378,29 +378,29 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
 
         _calculatePrize(_id,drawNum,randomsAmount);
         
-        //用地址为单位去领取
+        //Use address as unit to collect
         if(tokenGiftIdMap[_id].autoClaim){
             for(uint256 i = 0;i < tokenGiftIdMap[_id].userAddrNum;i++){
                 if(amount2claimedMap[_id][userAddrIndex[_id][i]] != 0){
                     _claimPrize(_id,userAddrIndex[_id][i]);
                 }
                 //delete userAddrTicketNumMap[_id][userAddrIndex[_id][i]];
-                //delete userAddrIndex[_id][i];
-                //_removeEnvelope(_id);
+//delete userAddrIndex[_id][i];
+//_removeEnvelope(_id);
             }
         }
-        //非autoClaim不清理
+        //Non-auto claims are not cleaned up
     }
 
     function _calculatePrize(uint256 _id,uint256 _drawNum,uint256[] memory _randomsAmount)internal{
         uint256 totalSendAmount = 0;
         uint256 userTickets = tokenGiftIdMap[_id].buyTickets + tokenGiftIdMap[_id].sendTickets;
-        //以用户投注总数或最大中奖数为维度开奖
+        //The lottery is drawn based on the total number of user bets or the maximum number of winnings.
         for (uint256 i = 0; i < _drawNum; i++){
             uint256 sendValue = _randomsAmount[i] - totalSendAmount;
             uint256 index = i;
             if (_drawNum != userTickets){
-                //需随机生成中奖的用户
+                //Need to randomly generate winning users
                 index = _deriveRandom(_randomsAmount[i],i) % userTickets;
                 for (;prizedTicketIndex[_id][index] != false;){
                     index++;
@@ -423,14 +423,14 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
     }
 
     function _deriveRandom(uint256 _seed,uint256 i)internal view returns(uint256){
-        //TODO:
+        //todo:
         uint32 shift = uint32(i % 256);
         return uint256(keccak256(abi.encodePacked(_seed,_leftRotate(_seed,shift),block.timestamp)));
     }
 
-    //通过_seed，一共生成_num个随机数,分布在0-_range之间，去重并且按照从小到大排序
-    //最后一个数必为range
-    //TODO：极端情况下会重复，导致该奖注中奖，且金额为0
+    //Through _seed, a total of _num random numbers are generated, distributed between 0-_range, deduplicated and sorted from small to large
+//The last number must be range
+//TODO: It will be repeated in extreme cases, resulting in the winning bet and the amount is 0
     function _getSortRandoms(uint256 _seed,uint256 _num,uint256 _range) internal view returns(uint256[] memory){
         uint256[] memory randons = new uint256[](_num);
         uint256 seed = _seed;
@@ -457,7 +457,7 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
 
     function _claimPrize(uint256 _id,address _winner)internal {
         require(amount2claimedMap[_id][_winner] != 0, "no prize");
-        // Calculate number of token to this contract
+        //Calculate number of token to this contract
 
         uint256 amountTokenToTransfer = amount2claimedMap[_id][_winner];
 
@@ -467,18 +467,17 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
     }
 
     /*
-    function _removeEnvelope(uint256 _id)internal{
-        for (uint256 i = 0; i < tokenGiftIdMap[_id].injectAddrNum; i++){
-            delete injectTicketMap[_id][injectAddrIndex[_id][i]];
-            delete injectAddrIndex[_id][i];
-        }
-        for (uint256 i = 0; i < tokenGiftIdMap[_id].userTxNum; i++) {
-            delete ticketMap[_id][i];
-        }
-        delete tokenGiftIdMap[_id];
-    }*/
-
-    //查询指定红包明细
+function _removeEnvelope(uint256 _id)internal{
+for (uint256 i = 0; i < tokenGiftIdMap[_id].injectAddrNum; i++){
+delete injectTicketMap[_id][injectAddrIndex[_id][i]];
+delete injectAddrIndex[_id][i];
+}
+for (uint256 i = 0; i < tokenGiftIdMap[_id].userTxNum; i++) {
+delete ticketMap[_id][i];
+}
+delete tokenGiftIdMap[_id];
+}*/
+//查询指定红包明细
     function viewTokenGiftStatus(uint256 _id) external view  returns (Status){
         return tokenGiftIdMap[_id].status;
     }
@@ -491,18 +490,18 @@ contract LuckyTokenGift is ITokenGift,ReentrancyGuard, Ownable{
      function viewTokenGiftTicketPrice(uint256 _id)external view  returns (uint256){
         return tokenGiftIdMap[_id].ticketPirce;
      }
-    //查询最新红包id
+    //Query the latest red envelope id
     function  viewCurrentTokenGiftId() external view returns(uint256){
         return currentId;
     }
 
  
-    //查询红包详情
+    //Query red envelope details
     function viewTokenGift(uint256 _id)external view returns (TokenGift memory){
         return tokenGiftIdMap[_id];
     }
 
-    //查询指定用户可领取的中奖金额
+    //Query the winning amount that the specified user can claim
     function viewTokenGiftClaimPrize(uint256 _id,address _user)external view returns(uint256){
         return amount2claimedMap[_id][_user];
     }

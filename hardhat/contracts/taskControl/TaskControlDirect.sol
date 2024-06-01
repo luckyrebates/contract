@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^4.0.0
+//SPDX-License-Identifier: MIT
+//Compatible with OpenZeppelin Contracts ^4.0.0
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -15,7 +15,7 @@ contract TaskControlDirect is ITaskControlDirect,ReentrancyGuard, Ownable {
     bool public allowSendTicket;
     uint public decimals;
 
-    mapping(address => uint256) private taskMap;     //记录任务及权重
+    mapping(address => uint256) private taskMap;     //Record tasks and weights
 
     error NotAllowModel(uint256 id, ITokenGift.Model model);
 
@@ -24,14 +24,14 @@ contract TaskControlDirect is ITaskControlDirect,ReentrancyGuard, Ownable {
     constructor(address _tokenGiftAddr,bool _allowBuyTicket,bool _allowSendTicket,uint _decimals)
         Ownable()
     {
-        //_mint(msg.sender, 10000 * 10 ** decimals());
+        //_mint(msg.sender, 10000 *10 **decimals());
         tokenGift = ITokenGift(_tokenGiftAddr);
         allowBuyTicket = _allowBuyTicket;
         allowSendTicket = _allowSendTicket;
         decimals = _decimals;
     }
 
-    //设置任务及权重，若权重为0，则等同删除任务
+    //Set the task and weight. If the weight is 0, it is equivalent to deleting the task.
     function setTask(address _taskAddr,uint256 _weight)external onlyOwner{
         taskMap[_taskAddr] = _weight;
         emit TaskAdd(_taskAddr, _weight);
@@ -70,14 +70,14 @@ contract TaskControlDirect is ITaskControlDirect,ReentrancyGuard, Ownable {
 
         uint256 value = ItaskCallee(_taskAddr).taskCall{value: msg.value}(address(msg.sender),_data);
     
-        //实际获取ticket数为runTask返回值*权重/price
+        //The actual number of tickets obtained is run task return value *weight/price
         uint256 ticketNumbers = value * taskMap[_taskAddr] / (10 ** decimals) ;
         require(ticketNumbers != 0,"ticketNumbers no zero");
         bool buy = _getTicket(_id,_receiveAddress,ticketNumbers);
         emit TicketGet(_id,_taskAddr,address(msg.sender), _receiveAddress,ticketNumbers,buy);
     }
 
-    //提取第三方代币
+    //Withdraw third-party tokens
     function withdraw(address _token,address _to,uint256 _value)external onlyOwner{
         IERC20(_token).transfer(_to,_value);
     }

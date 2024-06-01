@@ -16,7 +16,7 @@ export type {
 
 
     //const address = await whileListTask.getAddress();
-    //console.log('whileListTask address:',address);
+//console.log('whileListTask address:',address);
 
     return  emptyTask;
 }
@@ -31,7 +31,6 @@ export async function bindEmptyTask(){
     return {emptyTask,taskControl}
 }
 
-//执行部署
 /*
 bindTaskControl().then(() => process.exit(0)).catch(error => {
     console.error(error);
