@@ -25,7 +25,7 @@ describe("task control with token: sends ticket", function (){
     let otherAccount:HardhatEthersSigner;
     
     before(async function(){
-        //初始化合约
+        //Initialize contract
         usdt = await loadFixture(deployTetherUSD);
         const addr1 = await usdt.getAddress();
         console.log('usdt address:',addr1);
@@ -51,12 +51,12 @@ describe("task control with token: sends ticket", function (){
     describe("bind task",function(){
         let emptyTask:EmptyTask;
         before(async function(){
-            //部署具体任务：emptyTask：任意地址执行该合约即可
+            //Deploy specific tasks: empty task: just execute the contract at any address
             emptyTask = await loadFixture(deployEmptyTask);
             const emptyTaskAddr = await emptyTask.getAddress();
             console.log('emptyTask address:',emptyTaskAddr);
             
-            //绑定emptyTask到taskControl，设置权重为1
+            //Bind the empty task to the task control and set the weight to 1
             const setTask = taskControl.setTask(emptyTaskAddr,1n);
             await expect(setTask).not.to.be.reverted;
             await (await setTask).wait();       
@@ -65,14 +65,14 @@ describe("task control with token: sends ticket", function (){
         describe("tokenGift",function(){
             let id:bigint;
             before(async function(){
-                //授权用户地址向红包合约转账
+                //Authorize user address to transfer money to red envelope contract
                 const luckyTokenGiftAddr = await luckyTokenGift.getAddress();
                 const approveCall = usdt.approve(luckyTokenGiftAddr,1000000000);
                 await expect(approveCall).not.to.be.reverted;
                 await (await approveCall).wait() ;
     
     
-                //创建send模式红包，且绑定send地址为taskControl
+                //Create a send mode red envelope and bind the send address to task control
                 const taskControlAddr = await taskControl.getAddress();
                 const usdtAddr = await usdt.getAddress();
                 let sendModel = 2n;
@@ -87,7 +87,7 @@ describe("task control with token: sends ticket", function (){
             });
             
             it("inject", async function () {    
-                //owner捐赠10注
+                //Owner donates 10 notes
                 const injectTickets = luckyTokenGift.injectTickets(id,10n);
                 await expect(injectTickets).not.to.be.reverted;
                 const recept = await (await injectTickets).wait();
@@ -97,9 +97,9 @@ describe("task control with token: sends ticket", function (){
             });
             it("owner getTicket",async function () {
                 const emptyTaskAddr = await emptyTask.getAddress()
-                //将合约参数通过abi.encode处理后传入
+                //Pass the contract parameters through abi.encode and then pass them in
                 const data = hre.ethers.AbiCoder.defaultAbiCoder().encode(["uint256"],[10n]);
-                //owner 执行任务，获取ticket
+                //owner performs tasks and obtains tickets
                 const getTicket =  taskControl.getTicket(id,emptyTaskAddr,owner,data);
                 await expect(getTicket).not.to.be.reverted;
                 const recept = await (await getTicket).wait();
@@ -108,10 +108,10 @@ describe("task control with token: sends ticket", function (){
     
             it("otherAccount getTicket",async function () {
                 const emptyTaskAddr = await emptyTask.getAddress()
-                //将合约参数通过abi.encode处理后传入
+                //Pass the contract parameters through abi.encode and then pass them in
                 const data = hre.ethers.AbiCoder.defaultAbiCoder().encode(["uint256"],[5n]);
                 
-               //otherAccount 执行任务，获取ticket
+               //otherAccount performs tasks and obtains tickets
                const getTicket =  taskControl.connect(otherAccount).getTicket(id,emptyTaskAddr,otherAccount,data);
                 
                await expect(getTicket).not.to.be.reverted;
@@ -123,7 +123,7 @@ describe("task control with token: sends ticket", function (){
         
         describe("end tokenGift",function(){
             it("end", async function (){
-                //结束投注
+                //End bet
                 const id = await luckyTokenGift.viewCurrentTokenGiftId();
                 const endTokenGift = luckyTokenGift.endTokenGift(id);
     
@@ -136,7 +136,7 @@ describe("task control with token: sends ticket", function (){
                 console.log('id:%d end tx:%s owner Balance:%d otherAccount balance:%d',id,recept?.hash,ownerBalance,otherAccountBalance);
             });
             it("fulfillRandomWords", async function (){
-                //注入随机数
+                //Inject random numbers
                 const id = await luckyTokenGift.viewCurrentTokenGiftId();
                 
                 const fulfillRandomWords = randomGenerator.fulfillRandomWords(id,[1234567n]);
@@ -148,7 +148,7 @@ describe("task control with token: sends ticket", function (){
             });
         });
         describe("drawPrize tokenGift",function(){
-            //开奖
+            //Lottery draw
             it("drawPrize", async function () {
                 const id = await luckyTokenGift.viewCurrentTokenGiftId();
                 const drawPrize = luckyTokenGift.drawPrize(id,0n);

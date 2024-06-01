@@ -15,7 +15,7 @@ describe("TokenGift:buy model", function (){
     let randomGenerator:TestRandomGenerator;
     let owner:HardhatEthersSigner;
     before(async function(){
-        //初始化合约
+        //Initialize contract
         usdt = await loadFixture(deployTetherUSD);
         const addr1 = await usdt.getAddress();
         console.log('usdt address:',addr1);
@@ -38,20 +38,20 @@ describe("TokenGift:buy model", function (){
     describe("start tokenGift",function(){
         let id:bigint;
         before(async function(){
-            //授权用户地址向红包合约转账
+            //Authorize user address to transfer money to red envelope contract
             const addr = await luckyTokenGift.getAddress();
             const approveCall = usdt.approve(addr,1000000000);
             await expect(approveCall).not.to.be.reverted;
             await (await approveCall).wait();
             
-            //创建红包，采用buy模式，不限制截止时间及总购注数，最大中奖数为20注
+            //Create a red envelope and use the buy mode. There is no limit on the deadline and the total number of purchased bets. The maximum number of winnings is 20 bets.
             const createTokenGiftCall = luckyTokenGift.createTokenGift(0n,0n,20n,0n);
             await expect(createTokenGiftCall).not.to.be.reverted;
             
             let tx = await (await createTokenGiftCall).wait();
             console.log('tx: ',tx?.hash);
             
-            //查询创建的红包id
+            //Query the created red envelope ID
             id = await luckyTokenGift.viewCurrentTokenGiftId();
             
             const balance = await usdt.balanceOf(owner);
@@ -60,7 +60,7 @@ describe("TokenGift:buy model", function (){
         });
         
         it("inject", async function () {
-            //捐赠10注
+            //Donate 10 Notes
             const injectTickets = luckyTokenGift.injectTickets(id,10n);
             await expect(injectTickets).not.to.be.reverted;
             const recept = await (await injectTickets).wait();
@@ -69,7 +69,7 @@ describe("TokenGift:buy model", function (){
             console.log('id:%d inject tx:%s balance:%d',id,recept?.hash,balance);
         });
         it("buy",async function () {
-            //购买20注
+            //Buy 20 Notes
             const buyTickets =  luckyTokenGift.buyTickets(id,owner,20n);
             
             await expect(buyTickets).not.to.be.reverted;
@@ -80,7 +80,7 @@ describe("TokenGift:buy model", function (){
         });
 
         it("send",async function () {
-            //buy模式不能send
+            //Buy mode cannot send
             const sendTickets = luckyTokenGift.sendTickets(id,owner,30n)
             expect(sendTickets).to.be.reverted;
         });
@@ -89,7 +89,7 @@ describe("TokenGift:buy model", function (){
     
     describe("end tokenGift",function(){
         it("end", async function (){
-            //结束投注
+            //End bet
             const id = await luckyTokenGift.viewCurrentTokenGiftId();
             const endTokenGift = luckyTokenGift.endTokenGift(id);
 
@@ -101,7 +101,7 @@ describe("TokenGift:buy model", function (){
             console.log('id:%d end tx:%s balance:%d',id,recept?.hash,balance);
         });
         it("fulfillRandomWords", async function (){
-            //注入随机数
+            //Inject random numbers
             const id = await luckyTokenGift.viewCurrentTokenGiftId();
             
             const fulfillRandomWords = randomGenerator.fulfillRandomWords(id,[1234567n]);
@@ -114,7 +114,7 @@ describe("TokenGift:buy model", function (){
     });
     describe("drawPrize tokenGift",function(){
         it("drawPrize", async function () {
-            //开奖
+            //Lottery draw
             const id = await luckyTokenGift.viewCurrentTokenGiftId();
             const drawPrize = luckyTokenGift.drawPrize(id,0n);
             await expect(drawPrize).not.to.be.reverted;

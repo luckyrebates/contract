@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^4.0.0
+//SPDX-License-Identifier: MIT
+//Compatible with OpenZeppelin Contracts ^4.0.0
 pragma solidity ^0.8.19;
 
 import "../interfaces/ItaskCallee.sol";
@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//若taskControl注册该合约，则通过该合约发生转账行为都可以领取task token
+//If taskControl registers the contract, any transfer behavior through the contract can receive the task token.
 contract PayTask is ItaskCallee,Ownable{
     using SafeERC20 for IERC20;
     address public payToken;

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^4.0.0
+//SPDX-License-Identifier: MIT
+//Compatible with OpenZeppelin Contracts ^4.0.0
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -17,7 +17,7 @@ contract TaskControlWithToken is ITaskControlWithToken,ERC20,ReentrancyGuard, ER
     bool public allowBuyTicket;
     bool public allowSendTicket;
 
-    mapping(address => uint256) public taskMap;     //记录任务及权重
+    mapping(address => uint256) public taskMap;     //Record tasks and weights
 
     error NotAllowModel(uint256 id, ITokenGift.Model model);
 
@@ -27,7 +27,7 @@ contract TaskControlWithToken is ITaskControlWithToken,ERC20,ReentrancyGuard, ER
         ERC20("lotteryTicket", "Ticket")
         Ownable()
     {
-        //_mint(msg.sender, 10000 * 10 ** decimals());
+        //_mint(msg.sender, 10000 *10 **decimals());
         tokenGift = ITokenGift(_tokenGiftAddr);
         allowBuyTicket = _allowBuyTicket;
         allowSendTicket = _allowSendTicket;
@@ -35,11 +35,10 @@ contract TaskControlWithToken is ITaskControlWithToken,ERC20,ReentrancyGuard, ER
     }
 
     /*
-    function decimals() public view override virtual returns (uint8) {
-        return 6;
-    }*/
-
-    //设置任务及权重，若权重为0，则等同删除任务
+function decimals() public view override virtual returns (uint8) {
+return 6;
+}*/
+//Set the task and weight. If the weight is 0, it is equivalent to deleting the task.
     function setTask(address _taskAddr,uint256 _weight)external onlyOwner{
         taskMap[_taskAddr] = _weight;
         emit TaskAdd(_taskAddr, _weight);
@@ -57,7 +56,7 @@ contract TaskControlWithToken is ITaskControlWithToken,ERC20,ReentrancyGuard, ER
         require(taskMap[_taskAddr] != 0,"no set as task");
         uint256 value = ItaskCallee(_taskAddr).taskCall{value: msg.value}(address(msg.sender),_data);
     
-        //实际铸造token数为runTask返回值*权重
+        //The actual number of minted tokens is the run task return value *weight
         uint256 amount = value * taskMap[_taskAddr];
         _mint(_receiveAddress, amount);
 
@@ -104,7 +103,7 @@ contract TaskControlWithToken is ITaskControlWithToken,ERC20,ReentrancyGuard, ER
         emit TicketGet(_id,_fromAddress,_receiveAddress,amount,_ticketNumbers,buy);
     }
 
-    //提取第三方代币
+    //Withdraw third-party tokens
     function withdraw(address _token,address _to,uint256 _value)external virtual onlyOwner{
         IERC20(_token).transfer(_to,_value);
     }

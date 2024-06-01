@@ -1,12 +1,12 @@
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^54.0.0
+//SPDX-License-Identifier: MIT
+//Compatible with OpenZeppelin Contracts ^54.0.0
 pragma solidity ^0.8.19;
 
 import "../interfaces/ItaskCallee.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-//若taskControl注册该合约，则通过该合约进行指定代币质押，可领取task token
+//If taskControl registers the contract, the specified token will be pledged through the contract to receive the task token.
 contract StakeTokenTask is ItaskCallee{
     using SafeERC20 for IERC20;
 

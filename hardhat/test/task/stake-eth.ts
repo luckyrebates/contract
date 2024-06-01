@@ -21,7 +21,7 @@ describe("StakeETHTask", function (){
         console.log('Account before balance:',balance1 );
 
         const overrides = {
-            value: hre.ethers.parseEther("0.1"), // 转换为wei
+            value: hre.ethers.parseEther("0.1"), // convert to wei
         };
 
         const deposit = stakeETHTask.deposit(overrides);

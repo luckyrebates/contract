@@ -18,9 +18,9 @@ import type {
     AddressLike,
   } from "ethers";
 
-let _router:AddressLike;    //目标链router
-let _sourceChainSelector: BigNumberish; //源链selector
-let _crossChainSenderTaskControl:AddressLike;   //  源链的跨链TaskControl地址
+let _router:AddressLike;    //Target chain router
+let _sourceChainSelector: BigNumberish; //Source chain selector
+let _crossChainSenderTaskControl:AddressLike;   //  Cross-chain task control address of the source chain
 
 export async function deployCrossChainReceiverTask() {
     const  taskControl  = await loadFixture(deployTaskControlWithToken);
@@ -45,7 +45,7 @@ export async function bindTaskControlWithToken(){
 }
 
 
-//绑定跨链任务
+//Bind cross-chain tasks
 export async function setCrossChainSender() {
     const crossChainSenderTaskControl = await loadFixture(deployCrossChainReceiverTask);
     
